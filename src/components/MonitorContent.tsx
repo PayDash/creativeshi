@@ -726,6 +726,7 @@ function Music({ expanded }: { expanded?: boolean }) {
 /* ── Projects ── */
 
 const PROJECTS = [
+  { n: "creativeshi", d: "portfolio dashboard with live monitors", lang: "TypeScript", url: "https://github.com/PayDash/creativeshi" },
   { n: "FunPortfolioDuh", d: "css 3d portfolio", lang: "TypeScript", url: "https://github.com/PayDash/FunPortfolioDuh" },
   { n: "PayDash.github.io", d: "cool", lang: "JavaScript", url: "https://github.com/PayDash/PayDash.github.io" },
   { n: "Roblox-The-Hunt-Badge-Checker", d: "pretty cool right?", lang: "Python", url: "https://github.com/PayDash/Roblox-The-Hunt-Badge-Checker" },
