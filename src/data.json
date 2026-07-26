@@ -1,53 +1,57 @@
 {
   "ascii": [
-    "       .:+++++++++++++++++++++:.",
-    "     .++++++++++++++++++++++++++++++.",
-    "   .++++++++++++++++++++++++++++++++++++.",
-    "  :++++++++++++++++++++++++++++++++++++++:",
-    " .++++++++++++++++++++++++++++++++++++++++.",
-    " :++++++++++++++++++++++++++++++++++++++++:",
-    " ++++++++++++++++++++++++++++++++++++++++++",
-    " :++++++++++++++++++++++++++++++++++++++++:",
-    " .++++++++++++++++++++++++++++++++++++++++.",
-    "  :++++++++++++++++++++++++++++++++++++++:",
-    "   .++++++++++++++++++++++++++++++++++++.",
-    "     .++++++++++++++++++++++++++++++."
+    "                ..,;:cccc:;,..",
+    "          .,:clooooooooooooolc:;..",
+    "       .;loooooooooooooooooooooool;.",
+    "     .:oooooooooooooooooooooooooooooc.",
+    "    ;oooooooooooooooooooooooooooooooo;",
+    "   :oooooooooooooooooooooooooooooooooo:",
+    "  .oooooooooooooooooooooooooooooooooooo.",
+    "  ;oooooooooooooooooooooooooooooooooooo;",
+    "  :oooooooooooooooooooooooooooooooooooo:",
+    "  .oooooooooooooooooooooooooooooooooooo.",
+    "   :oooooooooooooooooooooooooooooooooo:",
+    "    ;oooooooooooooooooooooooooooooooo;",
+    "     .:oooooooooooooooooooooooooooooc.",
+    "       .;loooooooooooooooooooooool;.",
+    "          .,:clooooooooooooolc:;..",
+    "                ..,;:cccc:;.."
   ],
   "info": [
-    ["OS", "Arch Linux x86_64"],
+    ["OS", "macOS 26.5.2 arm64"],
     ["Host", "vibez@ByeVibez"],
-    ["Kernel", "6.8.7-arch1-1"],
-    ["Uptime", "4 days, 2 hours"],
+    ["Kernel", "25.5.0"],
+    ["Uptime", "6 hours, 50 mins"],
     ["Shell", "zsh 5.9"],
-    ["Packages", "1420 (pacman)"],
-    ["Terminal", "kitty 0.35.2"],
-    ["CPU", "AMD Ryzen 7 7800X3D"],
-    ["GPU", "NVIDIA RTX 4090"],
-    ["Memory", "15.6 GiB / 31.2 GiB"]
+    ["Packages", "161 (brew)"],
+    ["Terminal", "Ghostty"],
+    ["CPU", "Apple A18 Pro"],
+    ["GPU", "Apple A18 Pro (integrated)"],
+    ["Memory", "3.2 GiB / 8.0 GiB"]
   ],
   "commands": [
     {
       "cmd": "ls -la ~/",
       "output": [
-        "drwxr-xr-x  32 vibez  staff    1024 Jul 25 03:46 .",
-        "drwxr-xr-x   3 root   root      96 Mar 12 11:00 ..",
-        "drwxr-xr-x   8 vibez  staff     256 Jul 25 19:00 projects",
-        "drwxr-xr-x   4 vibez  staff     128 Jul 20 14:30 games",
-        "drwxr-xr-x   6 vibez  staff     192 Jul 24 09:15 dotfiles",
-        "-rw-r--r--   1 vibez  staff     420 Jul 25 20:40 neofetch.log"
+        "drwxr-xr-x  42 vibez  staff    1344 Jul 27 04:16 .",
+        "drwxr-xr-x   6 root  wheel     192 Jul 27 04:16 ..",
+        "drwxr-xr-x   8 vibez  staff     256 Jul 27 04:16 projects",
+        "drwxr-xr-x   4 vibez  staff     128 Jul 26 14:00 games",
+        "drwxr-xr-x   6 vibez  staff     192 Jul 27 03:00 dotfiles",
+        "-rw-r--r--   1 neo  staff     420 Jul 27 04:00 neofetch.log"
       ]
     },
     {
       "cmd": "uname -a",
       "output": [
-        "Linux ByeVibez 6.8.7-arch1-1 #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux"
+        "Darwin vibez 25.5.0 Darwin Kernel Version 25.5.0: arm64"
       ]
     },
     {
       "cmd": "df -h /",
       "output": [
-        "Filesystem      Size  Used Avail Use% Mounted on",
-        "/dev/nvme0n1p2  916G  412G  504G  45% /"
+        "Filesystem     Size   Used  Avail  Use%  Mounted on",
+        "/dev/disk3s1  228Gi   12Gi   96Gi   11%  /"
       ]
     },
     {
@@ -56,7 +60,7 @@
     },
     {
       "cmd": "uptime",
-      "output": [" 03:46  up 4 days,  2:01,  1 user,  load average: 0.08, 0.12, 0.15"]
+      "output": ["04:16  up 6:50, 2 users, load averages: 1.55 2.30 2.81"]
     }
   ]
 }
