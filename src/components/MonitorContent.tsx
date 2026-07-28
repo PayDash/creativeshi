@@ -274,10 +274,10 @@ function TerminalShell() {
 /* ── About ── */
 
 const ABOUT_ITEMS = [
-  { role: "0 Programming Knowledge", tech: "ts · js · python",           c: "#a78bfa" },
-  { role: "Not A Femboy",     tech: "python · lua · http",  c: "#f472b6" },
-  { role: "vibe coder",        tech: "html · css · next.js",       c: "#60a5fa" },
-  { role: "professional yapper", tech: "discord · reddit · 4chan", c: "#34d399" },
+  { role: "0 Programming Knowledge", tech: "html · js · python",           c: "#a78bfa" },
+  { role: "Not A Femboy",     tech: "linux hater",  c: "#f472b6" },
+  { role: "vibe coder",        tech: "opencode · deepseek · claude code",       c: "#60a5fa" },
+  { role: "professional yapper", tech: "meow · meow · meow", c: "#34d399" },
 ];
 
 function About({ expanded }: { expanded?: boolean }) {
@@ -376,7 +376,7 @@ function About({ expanded }: { expanded?: boolean }) {
 /* ── Music ── */
 
 type TopTrack = { title: string; artist: string; plays: number; album: string };
-type TopArtist = { name: string; genres: string[]; plays: number };
+type TopArtist = { name: string; genres: string[]; plays: number; image: string };
 type RecentTrack = { title: string; artist: string; album: string; image: string; nowPlaying: boolean; url: string; date: number | null };
 type Range = "week" | "month" | "year" | "all";
 
@@ -650,13 +650,12 @@ function Music({ expanded }: { expanded?: boolean }) {
           </div>
 
           <div style={{
-            flex: 1, display: "flex", gap: "1em",
-            minHeight: 0, flexWrap: "wrap",
+            flex: 1, display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1em",
+            minHeight: 0,
           }}>
             {topData.tracks.length > 0 && (
               <div style={{
-                flex: 1, display: "flex", flexDirection: "column",
-                minWidth: 0,
+                display: "flex", flexDirection: "column", minHeight: 0,
               }}>
                 <span style={{
                   color: t.accent, fontSize: "0.6em", fontWeight: 700,
@@ -712,8 +711,7 @@ function Music({ expanded }: { expanded?: boolean }) {
 
             {topData.artists.length > 0 && (
               <div style={{
-                flex: 1, display: "flex", flexDirection: "column",
-                minWidth: 0,
+                display: "flex", flexDirection: "column", minHeight: 0,
               }}>
                 <span style={{
                   color: t.accent, fontSize: "0.6em", fontWeight: 700,
@@ -739,6 +737,12 @@ function Music({ expanded }: { expanded?: boolean }) {
                         <span style={{ color: t.accent, width: "1.2em", textAlign: "right", fontWeight: 700, flexShrink: 0, fontSize: "0.8em" }}>
                           {String(i + 1).padStart(2, "0")}
                         </span>
+                        {artist.image && (
+                          <AlbumArt
+                            src={artist.image}
+                            size="1.8em" radius="50%"
+                            accent={t.accent} />
+                        )}
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ color: "#d4dce8", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                             {artist.name}
@@ -770,6 +774,35 @@ function Music({ expanded }: { expanded?: boolean }) {
               </div>
             )}
           </div>
+          {(() => {
+            const gs: Record<string, number> = {};
+            for (const a of topData.artists) {
+              for (const g of a.genres) gs[g] = (gs[g] || 0) + a.plays;
+            }
+            const sorted = Object.entries(gs).sort((a, b) => b[1] - a[1]).slice(0, 10);
+            if (sorted.length === 0) return null;
+            const maxP = sorted[0][1];
+            return (
+              <div style={{ flexShrink: 0, marginTop: "0.3em" }}>
+                <span style={{ color: t.accent, fontSize: "0.6em", fontWeight: 700, letterSpacing: "0.5px", marginBottom: "0.2em", display: "block" }}>◉ top genres</span>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.15em" }}>
+                  {sorted.map(([genre, plays]) => (
+                    <div key={genre} style={{
+                      display: "flex", alignItems: "center", gap: "0.3em",
+                      padding: "0.15em 0.4em", borderRadius: "3px",
+                      background: "rgba(255,255,255,0.02)", fontSize: "0.55em",
+                    }}>
+                      <span style={{ color: "#d4dce8", fontWeight: 600 }}>{genre}</span>
+                      <div style={{ width: "2em", height: "3px", background: "rgba(255,255,255,0.06)", borderRadius: "2px", overflow: "hidden" }}>
+                        <div style={{ width: `${(plays / maxP) * 100}%`, height: "100%", background: t.accent, borderRadius: "2px", transition: "width 0.5s" }} />
+                      </div>
+                      <span style={{ color: "#6b7a90", fontSize: "0.85em" }}>{plays}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </>
       )}
       <style>{`@keyframes shimmer{0%{background-position:200% 0}to{background-position:-200% 0}}`}</style>
