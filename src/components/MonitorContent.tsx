@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { createTimeline, utils } from "animejs";
 import { THEMES } from "@/lib/constants";
 import type { MonitorId } from "@/lib/constants";
 
@@ -517,7 +519,7 @@ function Music({ expanded }: { expanded?: boolean }) {
             padding: "0 4%",
           }}>
               <AlbumArt
-                src={single.image?.replace("/34s/", "/64s/") || "/album-covers/missing"}
+                src={single.image?.replace("/34s/", "/174s/") || "/album-covers/missing"}
                 size="clamp(40px, 7vw, 90px)" radius="8px"
                 accent={t.accent} nowPlaying={!!nowPlaying} />
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -1183,6 +1185,8 @@ function Activity({ expanded }: { expanded?: boolean }) {
 
 function Clock({ expanded }: { expanded?: boolean }) {
   const [time, setTime] = useState(new Date());
+  const containerRef = useRef<HTMLDivElement>(null);
+  const animDone = useRef(false);
   const t = THEMES.clock;
 
   useEffect(() => {
@@ -1190,33 +1194,228 @@ function Clock({ expanded }: { expanded?: boolean }) {
     return () => clearInterval(iv);
   }, []);
 
+  useEffect(() => {
+    if (animDone.current || !containerRef.current) return;
+    animDone.current = true;
+    const tl = createTimeline({
+      defaults: { easing: "easeOutQuad" },
+    });
+    tl.add(".clock-ring-group", { scale: [0.85, 1], opacity: [0, 1] }, 0)
+      .add(".clock-digit", {
+        opacity: [0, 1],
+        translateY: [18, 0],
+        delay: utils.stagger(35, { from: "center" }),
+      }, 200)
+      .add(".clock-colon", { scale: [0, 1], opacity: [0, 1] }, 200)
+      .add(".clock-title", { opacity: [0, 1], translateY: [-8, 0] }, 100)
+      .add(".clock-date", { opacity: [0, 1], translateY: [8, 0] }, 700)
+      .add(".clock-status", { opacity: [0, 1] }, 850);
+  }, []);
+
   const hh = time.getHours().toString().padStart(2, "0");
   const mm = time.getMinutes().toString().padStart(2, "0");
   const ss = time.getSeconds().toString().padStart(2, "0");
-  const blink = time.getSeconds() % 2 === 0;
+
+  const secPct = time.getSeconds() / 60;
+  const minPct = (time.getMinutes() + secPct) / 60;
+  const hrPct = (time.getHours() % 12 + minPct) / 12;
+
   const days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
   const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
+  const ds = time.getSeconds();
+  const degOffset = ds * 6;
+
+  const digitSpring = { type: "spring" as const, stiffness: 350, damping: 26 };
+
+  function AnimatedDigit({ d }: { d: string }) {
+    return (
+      <AnimatePresence mode="popLayout">
+        <motion.span
+          key={d}
+          className="clock-digit"
+          initial={{ y: -12, opacity: 0, scale: 0.85, filter: "blur(2px)" }}
+          animate={{ y: 0, opacity: 1, scale: 1, filter: "blur(0px)" }}
+          exit={{ y: 12, opacity: 0, scale: 0.85, filter: "blur(2px)" }}
+          transition={digitSpring}
+          style={{ display: "inline-block", position: "relative" }}
+        >
+          {d}
+        </motion.span>
+      </AnimatePresence>
+    );
+  }
+
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" as const }}>
-      <span style={{ ...ACCENT(t.accent), fontSize: expanded ? "1.2em" : "1em", fontWeight: 700, marginBottom: "0.4em", letterSpacing: "2px" }}>⏱ clock</span>
-      <div style={{ borderBottom: `1px solid ${t.accent}22`, width: "80%", marginBottom: "0.6em" }} />
-      <div style={{
-        color: "#eef2f6", fontWeight: 300,
-        fontSize: expanded ? "clamp(40px, 8vw, 120px)" : "clamp(20px, 4vw, 54px)",
-        letterSpacing: "0.05em", lineHeight: 1.2,
+    <div ref={containerRef} style={{
+      flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
+      justifyContent: "center", textAlign: "center" as const,
+      position: "relative", overflow: "hidden",
+    }}>
+      {/* Animated background glow */}
+      <motion.div
+        animate={{
+          scale: [1, 1.08, 1],
+          opacity: [0.3, 0.7, 0.3],
+        }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          position: "absolute", width: "80%", paddingBottom: "80%",
+          top: "10%", left: "10%", borderRadius: "50%",
+          background: `radial-gradient(circle, ${t.accent}11 0%, transparent 70%)`,
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Title */}
+      <motion.div className="clock-title" style={{
+        display: "flex", alignItems: "center", gap: "0.4em",
+        marginBottom: "0.3em", zIndex: 1,
       }}>
-        {hh}{blink ? ":" : " "}{mm}
+        <motion.span
+          animate={{ filter: [`drop-shadow(0 0 4px ${t.accent}44)`, `drop-shadow(0 0 12px ${t.accent}66)`, `drop-shadow(0 0 4px ${t.accent}44)`] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          style={{ fontSize: expanded ? "0.7em" : "0.55em", color: t.accent }}
+        >◉</motion.span>
+        <span style={{
+          fontSize: expanded ? "0.85em" : "0.65em", fontWeight: 700,
+          letterSpacing: "3px", textTransform: "uppercase" as const,
+          background: `linear-gradient(90deg, ${t.accent}88, ${t.accent}, ${t.accent}88)`,
+          backgroundClip: "text", WebkitBackgroundClip: "text",
+          color: "transparent",
+        }}>clock</span>
+      </motion.div>
+
+      {/* Progress rings + time */}
+      <div className="clock-ring-group" style={{
+        position: "relative", zIndex: 1,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        width: expanded ? "clamp(180px, 28vw, 380px)" : "clamp(100px, 16vw, 200px)",
+        height: expanded ? "clamp(180px, 28vw, 380px)" : "clamp(100px, 16vw, 200px)",
+      }}>
+        {/* Hour ring */}
+        <motion.div
+          animate={{ background: `conic-gradient(${t.accent}33 ${hrPct * 360}deg, rgba(255,255,255,0.04) 0deg)` }}
+          transition={{ duration: 0.5 }}
+          style={{
+            position: "absolute", inset: 0, borderRadius: "50%",
+            padding: expanded ? "clamp(6px, 0.8vw, 12px)" : "clamp(4px, 0.5vw, 8px)",
+            WebkitMask: "radial-gradient(circle, transparent 65%, black 65%)",
+            mask: "radial-gradient(circle, transparent 65%, black 65%)",
+          }}
+        />
+        {/* Minute ring */}
+        <motion.div
+          animate={{ background: `conic-gradient(${t.accent}66 ${minPct * 360}deg, rgba(255,255,255,0.04) 0deg)` }}
+          transition={{ duration: 0.5 }}
+          style={{
+            position: "absolute", inset: 0, borderRadius: "50%",
+            padding: expanded ? "clamp(10px, 1.4vw, 20px)" : "clamp(6px, 0.8vw, 12px)",
+            WebkitMask: "radial-gradient(circle, transparent 55%, black 55%)",
+            mask: "radial-gradient(circle, transparent 55%, black 55%)",
+          }}
+        />
+        {/* Second ring */}
+        <motion.div
+          animate={{ background: `conic-gradient(${t.accent} ${secPct * 360}deg, rgba(255,255,255,0.04) 0deg)` }}
+          transition={{ duration: 0.3 }}
+          style={{
+            position: "absolute", inset: 0, borderRadius: "50%",
+            padding: expanded ? "clamp(14px, 2vw, 28px)" : "clamp(8px, 1.1vw, 16px)",
+            WebkitMask: "radial-gradient(circle, transparent 45%, black 45%)",
+            mask: "radial-gradient(circle, transparent 45%, black 45%)",
+          }}
+        />
+
+        {/* Rotating decorative arc */}
+        <motion.div
+          animate={{ rotate: 360 + degOffset }}
+          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+          style={{
+            position: "absolute", inset: "-4px", borderRadius: "50%",
+            background: `conic-gradient(from ${degOffset}deg, transparent 60%, ${t.accent}22 80%, ${t.accent}44 95%, ${t.accent}66 100%)`,
+            opacity: 0.5,
+          }}
+        />
+
+        {/* Time display */}
+        <div style={{
+          position: "relative", zIndex: 2,
+          display: "flex", flexDirection: "column", alignItems: "center",
+        }}>
+          <motion.div
+            animate={{ textShadow: [`0 0 20px ${t.accent}22`, `0 0 30px ${t.accent}11`, `0 0 20px ${t.accent}22`] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            style={{
+              display: "flex", alignItems: "baseline", gap: "0.05em",
+              fontFamily: "monospace", fontWeight: 300,
+              fontSize: expanded ? "clamp(28px, 5vw, 72px)" : "clamp(18px, 3.5vw, 44px)",
+              letterSpacing: "0.06em", lineHeight: 1,
+            }}
+          >
+            <AnimatedDigit d={hh[0]} />
+            <AnimatedDigit d={hh[1]} />
+            <motion.span
+              className="clock-colon"
+              animate={{ opacity: ds % 2 === 0 ? 1 : 0.15 }}
+              transition={{ duration: 0.15 }}
+              style={{ color: t.accent, margin: "0 0.05em", display: "inline-block" }}
+            >:</motion.span>
+            <AnimatedDigit d={mm[0]} />
+            <AnimatedDigit d={mm[1]} />
+            <motion.span
+              className="clock-colon"
+              animate={{ opacity: ds % 2 === 0 ? 1 : 0.15 }}
+              transition={{ duration: 0.15 }}
+              style={{ color: t.accent, margin: "0 0.05em", display: "inline-block" }}
+            >:</motion.span>
+            <AnimatedDigit d={ss[0]} />
+            <AnimatedDigit d={ss[1]} />
+          </motion.div>
+        </div>
       </div>
-      <div style={{ ...DIM, fontSize: expanded ? "clamp(14px, 2.5vw, 40px)" : "clamp(8px, 1.5vw, 20px)", marginTop: "0.2em" }}>
-        {ss}
-      </div>
-      <div style={{ ...MUTED, fontSize: "0.7em", marginTop: "0.4em" }}>
-        {days[time.getDay()]}, {months[time.getMonth()]} {time.getDate()}, {time.getFullYear()}
-      </div>
-      <div style={{ ...DIM, fontSize: "0.6em", marginTop: "0.6em", background: "rgba(255,255,255,0.02)", borderRadius: "4px", padding: "0.3em 0.8em" }}>
+
+      {/* Date chip */}
+      <motion.div className="clock-date" style={{
+        marginTop: expanded ? "0.6em" : "0.35em",
+        display: "flex", alignItems: "center", gap: "0.5em", zIndex: 1,
+      }}>
+        <motion.div
+          whileHover={{ scale: 1.05, borderColor: `${t.accent}55` }}
+          style={{
+            background: `${t.accent}11`, border: `1px solid ${t.accent}22`,
+            borderRadius: "20px", padding: "0.2em 0.7em",
+            fontSize: expanded ? "0.7em" : "0.55em",
+            color: t.accent, fontWeight: 600, letterSpacing: "0.5px",
+          }}
+        >
+          {days[time.getDay()]}, {months[time.getMonth()]} {time.getDate()}
+        </motion.div>
+        <motion.span
+          animate={{ opacity: [0.4, 0.7, 0.4] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          style={{ color: "#475569", fontSize: expanded ? "0.55em" : "0.45em" }}
+        >
+          {time.getFullYear()}
+        </motion.span>
+      </motion.div>
+
+      {/* System tag */}
+      <motion.div className="clock-status" style={{
+        marginTop: expanded ? "0.5em" : "0.3em",
+        display: "flex", alignItems: "center", gap: "0.4em", zIndex: 1,
+        fontSize: expanded ? "0.5em" : "0.4em", color: "#475569",
+      }}>
+        <motion.span
+          animate={{ scale: [1, 0.6, 1], opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          style={{
+            width: "4px", height: "4px", borderRadius: "50%",
+            background: t.accent, display: "inline-block",
+          }}
+        />
         system online · uptime 4d
-      </div>
+      </motion.div>
     </div>
   );
 }
