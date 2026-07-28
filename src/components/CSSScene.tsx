@@ -320,7 +320,7 @@ export function CSSScene() {
               flexDirection: "column",
               fontSize: "clamp(10px, 1.2vw, 16px)",
               position: "relative",
-              overflow: "hidden",
+              overflowY: "auto",
               animation: "scaleIn 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
             }}
           >
