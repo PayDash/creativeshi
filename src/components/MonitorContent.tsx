@@ -433,14 +433,62 @@ function timeAgo(ts: number): string {
   return `${d}d ago`;
 }
 
-function fallbackCover(e: React.SyntheticEvent<HTMLImageElement>) {
-  const img = e.target as HTMLImageElement;
-  if (img.dataset.fallback) { img.style.display = "none"; return; }
-  img.dataset.fallback = "1";
-  fetch("/api/album-covers").then(r => r.json()).then(d => {
-    if (d.url) img.src = d.url;
-    else img.style.display = "none";
-  }).catch(() => { img.style.display = "none"; });
+function AlbumArt({ src, size, radius, accent, nowPlaying }: {
+  src: string; size: string; radius: string; accent: string; nowPlaying?: boolean
+}) {
+  const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
+  const fallbackTried = useRef(false);
+
+  useEffect(() => {
+    setLoaded(false);
+    setErrored(false);
+    fallbackTried.current = false;
+  }, [src]);
+
+  const handleError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    if (fallbackTried.current) { setErrored(true); return; }
+    fallbackTried.current = true;
+    const img = e.target as HTMLImageElement;
+    fetch("/api/album-covers").then(r => r.json()).then(d => {
+      if (d.url) img.src = d.url;
+      else setErrored(true);
+    }).catch(() => setErrored(true));
+  };
+
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: radius, flexShrink: 0,
+      position: "relative", overflow: "hidden",
+      background: "rgba(255,255,255,0.04)",
+      boxShadow: nowPlaying ? `0 0 20px ${accent}44` : "none",
+    }}>
+      {!errored && !loaded && (
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.03) 100%)",
+          backgroundSize: "200% 100%",
+          animation: "shimmer 1.2s ease-in-out infinite",
+        }} />
+      )}
+      {errored ? (
+        <div style={{
+          position: "absolute", inset: 0, display: "flex",
+          alignItems: "center", justifyContent: "center",
+          color: "rgba(255,255,255,0.12)", fontSize: "1.3em",
+        }}>♪</div>
+      ) : (
+        <img src={src} alt=""
+          onLoad={() => setLoaded(true)}
+          onError={handleError}
+          style={{
+            width: "100%", height: "100%", objectFit: "cover",
+            display: "block", opacity: loaded ? 1 : 0,
+            transition: "opacity 0.3s",
+          }} />
+      )}
+    </div>
+  );
 }
 
 function Music({ expanded }: { expanded?: boolean }) {
@@ -455,20 +503,16 @@ function Music({ expanded }: { expanded?: boolean }) {
 
     return (
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <style>{`@keyframes wave{0%{transform:scaleY(0.3)}100%{transform:scaleY(1)}}`}</style>
+        <style>{`@keyframes wave{0%{transform:scaleY(0.3)}100%{transform:scaleY(1)}}@keyframes shimmer{0%{background-position:200% 0}to{background-position:-200% 0}}`}</style>
         {single ? (
           <div style={{
             flex: 1, display: "flex", alignItems: "center", gap: "5%",
             padding: "0 4%",
           }}>
-              <img src={single.image?.replace("/34s/", "/300x300/") || "/album-covers/missing"} alt=""
-                onError={e => fallbackCover(e)}
-                style={{
-                  width: "clamp(40px, 7vw, 90px)",
-                  height: "clamp(40px, 7vw, 90px)",
-                  borderRadius: "8px", flexShrink: 0,
-                  boxShadow: nowPlaying ? `0 0 20px ${t.accent}44` : "none",
-                }} />
+              <AlbumArt
+                src={single.image?.replace("/34s/", "/300x300/") || "/album-covers/missing"}
+                size="clamp(40px, 7vw, 90px)" radius="8px"
+                accent={t.accent} nowPlaying={nowPlaying} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{
                 color: nowPlaying ? t.accent : "#94a3b8",
@@ -549,8 +593,10 @@ function Music({ expanded }: { expanded?: boolean }) {
                 border: track.nowPlaying ? `1px solid ${t.accent}33` : "1px solid transparent",
                 fontSize: "0.6em", minWidth: 0,
               }}>
-                <img src={track.image || "/album-covers/missing"} alt="" onError={e => fallbackCover(e)}
-                  style={{ width: "2.4em", height: "2.4em", borderRadius: "4px", flexShrink: 0 }} />
+                <AlbumArt
+                  src={track.image || "/album-covers/missing"}
+                  size="2.4em" radius="4px"
+                  accent={t.accent} nowPlaying={track.nowPlaying} />
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ color: track.nowPlaying ? t.accent : "#d4dce8", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {track.title}
@@ -719,6 +765,7 @@ function Music({ expanded }: { expanded?: boolean }) {
           </div>
         </>
       )}
+      <style>{`@keyframes shimmer{0%{background-position:200% 0}to{background-position:-200% 0}}`}</style>
     </div>
   );
 }
