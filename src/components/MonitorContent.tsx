@@ -1231,18 +1231,17 @@ function Clock({ expanded }: { expanded?: boolean }) {
   useEffect(() => {
     if (animDone.current || !containerRef.current) return;
     animDone.current = true;
-    const tl = createTimeline({
-      defaults: { easing: "easeOutQuad" },
-    });
-    tl.add(".clock-ring-group", { scale: [0.85, 1], opacity: [0, 1] }, 0)
+    const tl = createTimeline();
+    tl.add(".clock-ring-group", { scale: [0.85, 1], opacity: [0, 1], easing: "easeOutQuad" }, 0)
       .add(".clock-digit", {
         opacity: [0, 1],
         translateY: [18, 0],
         delay: utils.stagger(35, { from: "center" }),
+        easing: "easeOutQuad",
       }, 200)
-      .add(".clock-title", { opacity: [0, 1], translateY: [-8, 0] }, 100)
-      .add(".clock-date", { opacity: [0, 1], translateY: [8, 0] }, 700)
-      .add(".clock-status", { opacity: [0, 1] }, 850);
+      .add(".clock-title", { opacity: [0, 1], translateY: [-8, 0], easing: "easeOutQuad" }, 100)
+      .add(".clock-date", { opacity: [0, 1], translateY: [8, 0], easing: "easeOutQuad" }, 700)
+      .add(".clock-status", { opacity: [0, 1], easing: "easeOutQuad" }, 850);
   }, []);
 
   const hh = time.getHours().toString().padStart(2, "0");
