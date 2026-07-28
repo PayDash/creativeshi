@@ -512,7 +512,7 @@ function Music({ expanded }: { expanded?: boolean }) {
               <AlbumArt
                 src={single.image?.replace("/34s/", "/300x300/") || "/album-covers/missing"}
                 size="clamp(40px, 7vw, 90px)" radius="8px"
-                accent={t.accent} nowPlaying={nowPlaying} />
+                accent={t.accent} nowPlaying={!!nowPlaying} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{
                 color: nowPlaying ? t.accent : "#94a3b8",
