@@ -868,25 +868,27 @@ function Projects({ expanded }: { expanded?: boolean }) {
         <div style={{ flex: 1, minHeight: 0, overflow: "hidden", paddingTop: "0.3em" }}>
           <style>{`
             @keyframes repos-scroll {
-              0% {
-                transform: translateY(0);
-              }
-              100% {
-                transform: translateY(-50%);
-              }
+              0% { transform: translateY(0); }
+              100% { transform: translateY(-50%); }
             }
             .repos-track {
               display: flex;
               flex-direction: column;
-              gap: 0.3em;
               animation: repos-scroll 25s linear infinite;
+            }
+            .repos-item {
+              padding-bottom: 0.3em;
             }
             .repos-track:hover {
               animation-play-state: paused;
             }
           `}</style>
           <div className="repos-track">
-            {[...PROJECTS, ...PROJECTS].map((p, i) => <ProjectCard key={`${p.n}-${i}`} p={p} />)}
+            {[...PROJECTS, ...PROJECTS].map((p, i) => (
+              <div key={`${p.n}-${i}`} className="repos-item">
+                <ProjectCard p={p} />
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -942,12 +944,13 @@ function useWakatime() {
   return data;
 }
 
-function StatCard({ label, value, accent }: { label: string; value: string; accent: string }) {
+function StatCard({ label, value, accent, index }: { label: string; value: string; accent: string; index?: number }) {
   return (
     <div style={{
       background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)",
       borderRadius: "8px", padding: "0.3em 0.7em", flex: 1, minWidth: 80,
       animation: "statFade 0.5s ease backwards",
+      animationDelay: `${(index || 0) * 0.12}s`,
     }}>
       <span style={{ color: "#6b7a90", fontSize: "0.55em", letterSpacing: "0.5px", display: "block", marginBottom: "0.1em" }}>{label}</span>
       <span style={{ color: "#d4dce8", fontSize: "1.1em", fontWeight: 700 }}>{value}</span>
@@ -1018,24 +1021,23 @@ function Activity({ expanded }: { expanded?: boolean }) {
   if (!expanded) {
     return (
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "0.3em", marginBottom: "0.3em" }}>
-        <span style={{
-          fontSize: "1.4em",
-          color: t.accent,
-          filter: `drop-shadow(0 0 4px ${t.accent})`,
-          animation: "pulseDot 2s ease-in-out infinite",
-        }}>◉</span>
-        <span style={{
-          fontSize: "1.4em", fontWeight: 700, letterSpacing: "0.5px",
-          background: `linear-gradient(135deg, ${t.accent}, ${t.accent}bb)`,
-          backgroundClip: "text", WebkitBackgroundClip: "text",
-          color: "transparent",
-        }}>activity</span>
-      </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.3em", marginBottom: "0.3em" }}>
+          <span style={{
+            fontSize: "1.4em", color: t.accent,
+            filter: `drop-shadow(0 0 4px ${t.accent})`,
+            animation: "pulseDot 2s ease-in-out infinite",
+          }}>◉</span>
+          <span style={{
+            fontSize: "1.4em", fontWeight: 700, letterSpacing: "0.5px",
+            background: `linear-gradient(135deg, ${t.accent}, ${t.accent}bb)`,
+            backgroundClip: "text", WebkitBackgroundClip: "text",
+            color: "transparent",
+          }}>activity</span>
+        </div>
         <div style={{ borderBottom: `1px solid ${t.accent}22`, marginBottom: "0.4em" }} />
         <div style={{ display: "flex", gap: "0.5em", flexWrap: "wrap", marginBottom: "0.3em" }}>
-          <StatCard label="CODED" value={data.human_readable_total || "—"} accent={t.accent} />
-          <StatCard label="DAILY" value={data.human_readable_daily_average || "—"} accent={t.accent} />
+          <StatCard index={0} label="CODED" value={data.human_readable_total || "—"} accent={t.accent} />
+          <StatCard index={1} label="DAILY" value={data.human_readable_daily_average || "—"} accent={t.accent} />
         </div>
         <div style={{ display: "flex", gap: "1em", flex: 1, minHeight: 0 }}>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.2em" }}>
@@ -1340,19 +1342,13 @@ function Clock({ expanded }: { expanded?: boolean }) {
         >
           {days[time.getDay()]}, {months[time.getMonth()]} {time.getDate()}
         </motion.div>
-        <motion.span
-          animate={{ opacity: [0.4, 0.7, 0.4] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          style={{ color: "#475569", fontSize: expanded ? "0.55em" : "0.45em" }}
-        >
-          {time.getFullYear()}
-        </motion.span>
       </motion.div>
 
       {/* System tag */}
       <motion.div className="clock-status" style={{
-        marginTop: expanded ? "0.5em" : "0.3em",
-        display: "flex", alignItems: "center", gap: "0.4em", zIndex: 1,
+        position: "absolute", bottom: expanded ? "0.8em" : "0.5em",
+        left: 0, right: 0,
+        display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4em", zIndex: 1,
         fontSize: expanded ? "0.5em" : "0.4em", color: "#475569",
       }}>
         <motion.span
