@@ -19,6 +19,12 @@ html, body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+@media (max-width: 1023px) {
+  html, body {
+    overflow: auto;
+  }
+}
+
 body {
   display: flex;
   flex-direction: column;

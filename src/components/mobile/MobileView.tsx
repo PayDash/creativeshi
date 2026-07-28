@@ -14,7 +14,7 @@ export function MobileView() {
     <div style={{
       minHeight: "100dvh", width: "100vw", background: "#0d0f12",
       color: "#e8eaed", fontFamily: "system-ui, sans-serif",
-      paddingBottom: "40px",
+      paddingBottom: "40px", overflowY: "auto",
     }}>
       {/* Header */}
       <div style={{
@@ -96,7 +96,7 @@ export function MobileView() {
               display: "flex", flexDirection: "column",
               fontSize: "15px",
               position: "relative",
-              overflow: "hidden",
+              overflowY: "auto",
               animation: "slideUp 0.25s cubic-bezier(0.22, 1, 0.36, 1)",
             }}
           >
