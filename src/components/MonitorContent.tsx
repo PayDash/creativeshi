@@ -433,6 +433,8 @@ function timeAgo(ts: number): string {
   return `${d}d ago`;
 }
 
+let _fbUrl: string | null | undefined;
+
 function AlbumArt({ src, size, radius, accent, nowPlaying }: {
   src: string; size: string; radius: string; accent: string; nowPlaying?: boolean
 }) {
@@ -446,14 +448,18 @@ function AlbumArt({ src, size, radius, accent, nowPlaying }: {
     fallbackTried.current = false;
   }, [src]);
 
-  const handleError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  const handleError = async (e: React.SyntheticEvent<HTMLImageElement>) => {
     if (fallbackTried.current) { setErrored(true); return; }
     fallbackTried.current = true;
-    const img = e.target as HTMLImageElement;
-    fetch("/api/album-covers").then(r => r.json()).then(d => {
-      if (d.url) img.src = d.url;
-      else setErrored(true);
-    }).catch(() => setErrored(true));
+    if (_fbUrl === undefined) {
+      try {
+        const r = await fetch("/api/album-covers");
+        const d = await r.json();
+        _fbUrl = d.url || null;
+      } catch { _fbUrl = null; }
+    }
+    if (_fbUrl) (e.target as HTMLImageElement).src = _fbUrl;
+    else setErrored(true);
   };
 
   return (
@@ -481,6 +487,7 @@ function AlbumArt({ src, size, radius, accent, nowPlaying }: {
         <img src={src} alt=""
           onLoad={() => setLoaded(true)}
           onError={handleError}
+          loading="lazy"
           style={{
             width: "100%", height: "100%", objectFit: "cover",
             display: "block", opacity: loaded ? 1 : 0,
@@ -510,7 +517,7 @@ function Music({ expanded }: { expanded?: boolean }) {
             padding: "0 4%",
           }}>
               <AlbumArt
-                src={single.image?.replace("/34s/", "/300x300/") || "/album-covers/missing"}
+                src={single.image?.replace("/34s/", "/64s/") || "/album-covers/missing"}
                 size="clamp(40px, 7vw, 90px)" radius="8px"
                 accent={t.accent} nowPlaying={!!nowPlaying} />
             <div style={{ flex: 1, minWidth: 0 }}>
