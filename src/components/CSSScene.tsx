@@ -301,7 +301,6 @@ export function CSSScene() {
             position: "fixed", inset: 0, zIndex: 50,
             display: "flex", alignItems: "center", justifyContent: "center",
             background: "rgba(0,0,0,0.6)",
-            backdropFilter: "blur(8px)",
             animation: "fadeIn 0.3s ease-out",
           }}
           onClick={() => handleFocus(null)}
@@ -321,6 +320,7 @@ export function CSSScene() {
               fontSize: "clamp(10px, 1.2vw, 16px)",
               position: "relative",
               overflowY: "auto",
+              touchAction: "auto",
               animation: "scaleIn 0.3s cubic-bezier(0.22, 1, 0.36, 1)",
             }}
           >

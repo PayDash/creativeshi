@@ -644,12 +644,12 @@ function Music({ expanded }: { expanded?: boolean }) {
 
           <div style={{
             flex: 1, display: "flex", gap: "1em",
-            minHeight: 0, overflow: "hidden", flexWrap: "wrap",
+            minHeight: 0, flexWrap: "wrap",
           }}>
             {topData.tracks.length > 0 && (
               <div style={{
                 flex: 1, display: "flex", flexDirection: "column",
-                minWidth: 0, overflow: "hidden",
+                minWidth: 0,
               }}>
                 <span style={{
                   color: t.accent, fontSize: "0.6em", fontWeight: 700,
@@ -706,7 +706,7 @@ function Music({ expanded }: { expanded?: boolean }) {
             {topData.artists.length > 0 && (
               <div style={{
                 flex: 1, display: "flex", flexDirection: "column",
-                minWidth: 0, overflow: "hidden",
+                minWidth: 0,
               }}>
                 <span style={{
                   color: t.accent, fontSize: "0.6em", fontWeight: 700,
