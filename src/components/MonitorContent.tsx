@@ -274,9 +274,9 @@ function TerminalShell() {
 /* ── About ── */
 
 const ABOUT_ITEMS = [
-  { role: "code juggler",      tech: "ts · js · python",           c: "#a78bfa" },
-  { role: "roblox reverse engineer", tech: "python · lua · http",  c: "#f472b6" },
-  { role: "web bastard",       tech: "html · css · next.js",       c: "#60a5fa" },
+  { role: "0 Programming Knowledge", tech: "ts · js · python",           c: "#a78bfa" },
+  { role: "Not A Femboy",     tech: "python · lua · http",  c: "#f472b6" },
+  { role: "vibe coder",        tech: "html · css · next.js",       c: "#60a5fa" },
   { role: "professional yapper", tech: "discord · reddit · 4chan", c: "#34d399" },
 ];
 
