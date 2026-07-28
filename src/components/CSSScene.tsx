@@ -163,15 +163,6 @@ export function CSSScene() {
         pointerEvents: "none",
       }} />
 
-      {/* Desk surface illusion at bottom */}
-      <div style={{
-        position: "absolute", bottom: 0, left: "10%", right: "10%", height: "18vh",
-        background: "linear-gradient(180deg, transparent 0%, rgba(109,40,217,0.08) 40%, rgba(88,28,200,0.15) 100%)",
-        borderTop: "1px solid rgba(124,58,237,0.06)",
-        borderRadius: "50% 50% 0 0 / 10px 10px 0 0",
-        pointerEvents: "none",
-      }} />
-
       {/* Monitor array */}
       <div ref={gridRef} style={{
         position: "absolute",
