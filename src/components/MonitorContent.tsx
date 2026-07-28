@@ -824,6 +824,32 @@ const PROJECTS = [
 function Projects({ expanded }: { expanded?: boolean }) {
   const t = THEMES.projects;
   const langs = new Set(PROJECTS.map(p => p.lang)).size;
+
+  function ProjectCard({ p }: { p: typeof PROJECTS[number] }) {
+    return (
+      <a href={p.url} target="_blank" rel="noopener noreferrer"
+        style={{
+          background: "rgba(255,255,255,0.02)", borderRadius: "4px", padding: "0.35em 0.6em",
+          display: "flex", justifyContent: "space-between", alignItems: "center",
+          textDecoration: "none", transition: "background 0.15s",
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; }}
+      >
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ ...T(""), fontWeight: 700, fontSize: expanded ? "1em" : "0.85em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.n}</div>
+          <div style={{ ...DIM, fontSize: "0.7em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.d}</div>
+        </div>
+        <span style={{
+          color: t.accent, fontSize: "0.6em", background: `${t.accent}11`,
+          padding: "0.15em 0.4em", borderRadius: "3px", flexShrink: 0, marginLeft: "0.4em",
+        }}>
+          {p.lang}
+        </span>
+      </a>
+    );
+  }
+
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.3em" }}>
@@ -834,30 +860,36 @@ function Projects({ expanded }: { expanded?: boolean }) {
         </a>
       </div>
       <div style={{ borderBottom: `1px solid ${t.accent}22`, marginBottom: "0.4em" }} />
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.3em", flex: 1, paddingTop: "0.3em" }}>
-        {PROJECTS.map((p) => (
-          <a key={p.n} href={p.url} target="_blank" rel="noopener noreferrer"
-            style={{
-              background: "rgba(255,255,255,0.02)", borderRadius: "4px", padding: "0.35em 0.6em",
-              display: "flex", justifyContent: "space-between", alignItems: "center",
-              textDecoration: "none", transition: "background 0.15s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.02)"; }}
-          >
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ ...T(""), fontWeight: 700, fontSize: expanded ? "1em" : "0.85em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.n}</div>
-              <div style={{ ...DIM, fontSize: "0.7em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.d}</div>
-            </div>
-            <span style={{
-              color: t.accent, fontSize: "0.6em", background: `${t.accent}11`,
-              padding: "0.15em 0.4em", borderRadius: "3px", flexShrink: 0, marginLeft: "0.4em",
-            }}>
-              {p.lang}
-            </span>
-          </a>
-        ))}
-      </div>
+      {expanded ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.3em", flex: 1, paddingTop: "0.3em", overflowY: "auto", minHeight: 0 }}>
+          {PROJECTS.map(p => <ProjectCard key={p.n} p={p} />)}
+        </div>
+      ) : (
+        <div style={{ flex: 1, minHeight: 0, overflow: "hidden", paddingTop: "0.3em" }}>
+          <style>{`
+            @keyframes repos-scroll {
+              0% {
+                transform: translateY(0);
+              }
+              100% {
+                transform: translateY(-50%);
+              }
+            }
+            .repos-track {
+              display: flex;
+              flex-direction: column;
+              gap: 0.3em;
+              animation: repos-scroll 25s linear infinite;
+            }
+            .repos-track:hover {
+              animation-play-state: paused;
+            }
+          `}</style>
+          <div className="repos-track">
+            {[...PROJECTS, ...PROJECTS].map((p, i) => <ProjectCard key={`${p.n}-${i}`} p={p} />)}
+          </div>
+        </div>
+      )}
       {expanded && (
         <>
           <div style={{ borderBottom: `1px solid ${t.accent}22`, marginTop: "0.6em", marginBottom: "0.5em" }} />
