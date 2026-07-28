@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { createTimeline, utils } from "animejs";
 import { THEMES } from "@/lib/constants";
 import type { MonitorId } from "@/lib/constants";
@@ -1206,7 +1206,6 @@ function Clock({ expanded }: { expanded?: boolean }) {
         translateY: [18, 0],
         delay: utils.stagger(35, { from: "center" }),
       }, 200)
-      .add(".clock-colon", { scale: [0, 1], opacity: [0, 1] }, 200)
       .add(".clock-title", { opacity: [0, 1], translateY: [-8, 0] }, 100)
       .add(".clock-date", { opacity: [0, 1], translateY: [8, 0] }, 700)
       .add(".clock-status", { opacity: [0, 1] }, 850);
@@ -1216,34 +1215,13 @@ function Clock({ expanded }: { expanded?: boolean }) {
   const mm = time.getMinutes().toString().padStart(2, "0");
   const ss = time.getSeconds().toString().padStart(2, "0");
 
-  const secPct = time.getSeconds() / 60;
-  const minPct = (time.getMinutes() + secPct) / 60;
-  const hrPct = (time.getHours() % 12 + minPct) / 12;
-
   const days = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
   const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
   const ds = time.getSeconds();
-  const degOffset = ds * 6;
-
-  const digitSpring = { type: "spring" as const, stiffness: 350, damping: 26 };
 
   function AnimatedDigit({ d }: { d: string }) {
-    return (
-      <AnimatePresence mode="popLayout">
-        <motion.span
-          key={d}
-          className="clock-digit"
-          initial={{ y: -12, opacity: 0, scale: 0.85, filter: "blur(2px)" }}
-          animate={{ y: 0, opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ y: 12, opacity: 0, scale: 0.85, filter: "blur(2px)" }}
-          transition={digitSpring}
-          style={{ display: "inline-block", position: "relative" }}
-        >
-          {d}
-        </motion.span>
-      </AnimatePresence>
-    );
+    return <span className="clock-digit">{d}</span>;
   }
 
   return (
@@ -1251,18 +1229,20 @@ function Clock({ expanded }: { expanded?: boolean }) {
       flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
       justifyContent: "center", textAlign: "center" as const,
       position: "relative", overflow: "hidden",
+      background: t.bg,
     }}>
       {/* Animated background glow */}
       <motion.div
         animate={{
-          scale: [1, 1.08, 1],
-          opacity: [0.3, 0.7, 0.3],
+          scale: [1, 1.05, 1],
+          opacity: [0.2, 0.5, 0.2],
         }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         style={{
-          position: "absolute", width: "80%", paddingBottom: "80%",
-          top: "10%", left: "10%", borderRadius: "50%",
-          background: `radial-gradient(circle, ${t.accent}11 0%, transparent 70%)`,
+          position: "absolute", inset: 0,
+          background: `
+            radial-gradient(ellipse at 50% 50%, ${t.accent}18 0%, transparent 70%)
+          `,
           pointerEvents: "none",
         }}
       />
@@ -1286,92 +1266,29 @@ function Clock({ expanded }: { expanded?: boolean }) {
         }}>clock</span>
       </motion.div>
 
-      {/* Progress rings + time */}
+      {/* Time display */}
       <div className="clock-ring-group" style={{
         position: "relative", zIndex: 1,
         display: "flex", alignItems: "center", justifyContent: "center",
-        width: expanded ? "clamp(180px, 28vw, 380px)" : "clamp(100px, 16vw, 200px)",
-        height: expanded ? "clamp(180px, 28vw, 380px)" : "clamp(100px, 16vw, 200px)",
+        flexDirection: "column",
       }}>
-        {/* Hour ring */}
-        <motion.div
-          animate={{ background: `conic-gradient(${t.accent}33 ${hrPct * 360}deg, rgba(255,255,255,0.04) 0deg)` }}
-          transition={{ duration: 0.5 }}
+        <div
           style={{
-            position: "absolute", inset: 0, borderRadius: "50%",
-            padding: expanded ? "clamp(6px, 0.8vw, 12px)" : "clamp(4px, 0.5vw, 8px)",
-            WebkitMask: "radial-gradient(circle, transparent 65%, black 65%)",
-            mask: "radial-gradient(circle, transparent 65%, black 65%)",
+            fontFamily: "monospace", fontWeight: 300,
+            fontSize: expanded ? "clamp(56px, 10vw, 140px)" : "clamp(18px, 3.5vw, 44px)",
+            letterSpacing: "0.06em", lineHeight: 1,
+            color: t.accent,
+            pointerEvents: "none",
           }}
-        />
-        {/* Minute ring */}
-        <motion.div
-          animate={{ background: `conic-gradient(${t.accent}66 ${minPct * 360}deg, rgba(255,255,255,0.04) 0deg)` }}
-          transition={{ duration: 0.5 }}
-          style={{
-            position: "absolute", inset: 0, borderRadius: "50%",
-            padding: expanded ? "clamp(10px, 1.4vw, 20px)" : "clamp(6px, 0.8vw, 12px)",
-            WebkitMask: "radial-gradient(circle, transparent 55%, black 55%)",
-            mask: "radial-gradient(circle, transparent 55%, black 55%)",
-          }}
-        />
-        {/* Second ring */}
-        <motion.div
-          animate={{ background: `conic-gradient(${t.accent} ${secPct * 360}deg, rgba(255,255,255,0.04) 0deg)` }}
-          transition={{ duration: 0.3 }}
-          style={{
-            position: "absolute", inset: 0, borderRadius: "50%",
-            padding: expanded ? "clamp(14px, 2vw, 28px)" : "clamp(8px, 1.1vw, 16px)",
-            WebkitMask: "radial-gradient(circle, transparent 45%, black 45%)",
-            mask: "radial-gradient(circle, transparent 45%, black 45%)",
-          }}
-        />
-
-        {/* Rotating decorative arc */}
-        <motion.div
-          animate={{ rotate: 360 + degOffset }}
-          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-          style={{
-            position: "absolute", inset: "-4px", borderRadius: "50%",
-            background: `conic-gradient(from ${degOffset}deg, transparent 60%, ${t.accent}22 80%, ${t.accent}44 95%, ${t.accent}66 100%)`,
-            opacity: 0.5,
-          }}
-        />
-
-        {/* Time display */}
-        <div style={{
-          position: "relative", zIndex: 2,
-          display: "flex", flexDirection: "column", alignItems: "center",
-        }}>
-          <motion.div
-            animate={{ textShadow: [`0 0 20px ${t.accent}22`, `0 0 30px ${t.accent}11`, `0 0 20px ${t.accent}22`] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            style={{
-              display: "flex", alignItems: "baseline", gap: "0.05em",
-              fontFamily: "monospace", fontWeight: 300,
-              fontSize: expanded ? "clamp(28px, 5vw, 72px)" : "clamp(18px, 3.5vw, 44px)",
-              letterSpacing: "0.06em", lineHeight: 1,
-            }}
-          >
-            <AnimatedDigit d={hh[0]} />
-            <AnimatedDigit d={hh[1]} />
-            <motion.span
-              className="clock-colon"
-              animate={{ opacity: ds % 2 === 0 ? 1 : 0.15 }}
-              transition={{ duration: 0.15 }}
-              style={{ color: t.accent, margin: "0 0.05em", display: "inline-block" }}
-            >:</motion.span>
-            <AnimatedDigit d={mm[0]} />
-            <AnimatedDigit d={mm[1]} />
-            <motion.span
-              className="clock-colon"
-              animate={{ opacity: ds % 2 === 0 ? 1 : 0.15 }}
-              transition={{ duration: 0.15 }}
-              style={{ color: t.accent, margin: "0 0.05em", display: "inline-block" }}
-            >:</motion.span>
-            <AnimatedDigit d={ss[0]} />
-            <AnimatedDigit d={ss[1]} />
-          </motion.div>
+        >
+          <AnimatedDigit d={hh[0]} />
+          <AnimatedDigit d={hh[1]} />
+          <span style={{ opacity: ds % 2 === 0 ? 1 : 0.15, transition: "opacity 0.15s" }}>:</span>
+          <AnimatedDigit d={mm[0]} />
+          <AnimatedDigit d={mm[1]} />
+          <span style={{ opacity: ds % 2 === 0 ? 1 : 0.15, transition: "opacity 0.15s" }}>:</span>
+          <AnimatedDigit d={ss[0]} />
+          <AnimatedDigit d={ss[1]} />
         </div>
       </div>
 

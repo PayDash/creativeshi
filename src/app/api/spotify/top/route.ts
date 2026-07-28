@@ -17,11 +17,20 @@ function mapTrack(t: any): { title: string; artist: string; plays: number; album
   };
 }
 
-function mapArtist(a: any): { name: string; genres: string[]; plays: number } {
+function mapArtist(a: any): { name: string; genres: string[]; plays: number; image: string } {
   return {
     name: a.name || "Unknown",
-    genres: [],
+    genres: (a.tags?.tag || []).map((t: any) => typeof t === "string" ? t : t.name || "").filter(Boolean),
     plays: parseInt(a.playcount) || 0,
+    image: (() => {
+      const imgs = a.image || [];
+      const sizes = ["small", "medium", "large", "extralarge"];
+      for (const sz of sizes) {
+        const url = imgs.find((i: any) => i.size === sz)?.["#text"] || "";
+        if (url && !url.includes("2a96cbd8b46e442fc41c2b86b821562f")) return url;
+      }
+      return "";
+    })(),
   };
 }
 
