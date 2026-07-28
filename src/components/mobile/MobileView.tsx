@@ -78,8 +78,7 @@ export function MobileView() {
           style={{
             position: "fixed", inset: 0, zIndex: 100,
             display: "flex", alignItems: "flex-end",
-            background: "rgba(0,0,0,0.7)", backdropFilter: "blur(10px)",
-            WebkitBackdropFilter: "blur(10px)",
+            background: "rgba(0,0,0,0.7)",
             animation: "fadeIn 0.2s ease-out",
           }}
           onClick={() => setFocused(null)}
@@ -97,6 +96,7 @@ export function MobileView() {
               fontSize: "15px",
               position: "relative",
               overflowY: "auto",
+              WebkitOverflowScrolling: "touch",
               animation: "slideUp 0.25s cubic-bezier(0.22, 1, 0.36, 1)",
             }}
           >
@@ -116,7 +116,9 @@ export function MobileView() {
                 cursor: "pointer", zIndex: 10, opacity: 0.7,
               }}
             >✕</div>
-            <MonitorContent id={focused} expanded />
+            <div style={{ flex: 1, minHeight: 0 }}>
+              <MonitorContent id={focused} expanded />
+            </div>
           </div>
         </div>
       )}
