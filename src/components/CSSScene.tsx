@@ -166,8 +166,8 @@ export function CSSScene() {
       {/* Desk surface illusion at bottom */}
       <div style={{
         position: "absolute", bottom: 0, left: "10%", right: "10%", height: "18vh",
-        background: "linear-gradient(180deg, transparent 0%, rgba(30,20,12,0.5) 40%, rgba(20,14,8,0.7) 100%)",
-        borderTop: "1px solid rgba(255,255,255,0.03)",
+        background: "linear-gradient(180deg, transparent 0%, rgba(109,40,217,0.08) 40%, rgba(88,28,200,0.15) 100%)",
+        borderTop: "1px solid rgba(124,58,237,0.06)",
         borderRadius: "50% 50% 0 0 / 10px 10px 0 0",
         pointerEvents: "none",
       }} />
