@@ -361,7 +361,7 @@ function About({ expanded }: { expanded?: boolean }) {
           <div style={{ display: "flex", flexDirection: "column", gap: "0.25em", fontSize: "0.75em" }}>
             <span style={{ color: "#6b7a90" }}>languages  <span style={{ color: "#b0bed9" }}>ts · js · python · lua</span></span>
             <span style={{ color: "#6b7a90" }}>tools      <span style={{ color: "#b0bed9" }}>next.js · opencode · tailwind · vscode</span></span>
-            <span style={{ color: "#6b7a90" }}>socials    <span style={{ color: "#b0bed9" }}>github.com/PayDash · discord: @vibez</span></span>
+            <span style={{ color: "#6b7a90" }}>socials    <span style={{ color: "#b0bed9" }}>github.com/PayDash · discord: @ByeVibez</span></span>
           </div>
           <div style={{ textAlign: "center", fontSize: "0.6em", marginTop: "0.6em", color: `${t.accent}33`, letterSpacing: "0.25em" }}>
             ◇ ─ ─ ─ ◇ ─ ─ ─ ◇ ─ ─ ─ ◇ ─ ─ ─ ◇
