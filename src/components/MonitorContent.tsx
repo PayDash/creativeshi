@@ -1347,10 +1347,10 @@ function Clock({ expanded }: { expanded?: boolean }) {
 
       {/* System tag */}
       <motion.div className="clock-status" style={{
-        position: "absolute", bottom: expanded ? "0.8em" : "0.5em",
-        left: 0, right: 0,
         display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4em", zIndex: 1,
         fontSize: expanded ? "0.5em" : "0.4em", color: "#475569",
+        marginTop: expanded ? "0.8em" : "0",
+        paddingBottom: expanded ? "0.4em" : "0",
       }}>
         <motion.span
           animate={{ scale: [1, 0.6, 1], opacity: [0.4, 1, 0.4] }}
