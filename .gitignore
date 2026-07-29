@@ -38,6 +38,9 @@ yarn-error.log*
 # serena
 .serena/
 
+# graphify
+graphify-out/
+
 # vercel
 .vercel
 
