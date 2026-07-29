@@ -865,7 +865,7 @@ function Projects({ expanded }: { expanded?: boolean }) {
           {PROJECTS.map(p => <ProjectCard key={p.n} p={p} />)}
         </div>
       ) : (
-        <div style={{ flex: 1, minHeight: 0, overflow: "hidden", paddingTop: "0.3em" }}>
+        <div style={{ flex: 1, minHeight: 0, overflow: "hidden", paddingTop: "0.3em", maxHeight: "210px" }}>
           <style>{`
             @keyframes repos-scroll {
               0% { transform: translateY(0); }
@@ -874,7 +874,7 @@ function Projects({ expanded }: { expanded?: boolean }) {
             .repos-track {
               display: flex;
               flex-direction: column;
-              animation: repos-scroll 25s linear infinite;
+              animation: repos-scroll 20s linear infinite;
             }
             .repos-item {
               padding-bottom: 0.3em;
@@ -1263,6 +1263,8 @@ function Clock({ expanded }: { expanded?: boolean }) {
       justifyContent: "center", textAlign: "center" as const,
       position: "relative", overflow: "hidden",
       background: t.bg,
+      minHeight: expanded ? "auto" : "140px",
+      padding: expanded ? "0" : "4px 0",
     }}>
       {/* Animated background glow */}
       <motion.div
@@ -1305,10 +1307,10 @@ function Clock({ expanded }: { expanded?: boolean }) {
         display: "flex", alignItems: "center", justifyContent: "center",
         flexDirection: "column",
       }}>
-        <div
-          style={{
-            fontFamily: "monospace", fontWeight: 300,
-            fontSize: expanded ? "clamp(56px, 10vw, 140px)" : "clamp(18px, 3.5vw, 44px)",
+<div
+            style={{
+              fontFamily: "monospace", fontWeight: 300,
+              fontSize: expanded ? "clamp(56px, 10vw, 140px)" : "clamp(26px, 3.5vw, 44px)",
             letterSpacing: "0.06em", lineHeight: 1,
             color: t.accent,
             pointerEvents: "none",
