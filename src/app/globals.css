@@ -30,11 +30,6 @@ body {
   flex-direction: column;
 }
 
-#__next {
-  height: 100%;
-  background: #080a10;
-}
-
 ::-webkit-scrollbar {
   width: 6px;
 }

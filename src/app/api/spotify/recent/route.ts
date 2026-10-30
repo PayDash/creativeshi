@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { fetchRecentTracks } from "@/lib/spotify";
+import { fetchRecentTracks, pickImageUrl } from "@/lib/spotify";
 
 export const revalidate = 30;
 
@@ -20,15 +20,7 @@ export async function GET() {
       title: t.name || "Unknown",
       artist: t.artist?.["#text"] || "Unknown",
       album: t.album?.["#text"] || "",
-      image: (() => {
-        const imgs = t.image || [];
-        const sizes = ["small", "medium", "large", "extralarge"];
-        for (const sz of sizes) {
-          const url = imgs.find((i: any) => i.size === sz)?.["#text"] || "";
-          if (url && !url.includes("2a96cbd8b46e442fc41c2b86b821562f")) return url;
-        }
-        return "";
-      })(),
+      image: pickImageUrl(t.image || []),
       nowPlaying: !!t["@attr"]?.nowplaying,
       url: t.url || "",
       date: t.date?.uts ? parseInt(t.date.uts) * 1000 : null,

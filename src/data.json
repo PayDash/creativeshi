@@ -1,22 +1,4 @@
 {
-  "ascii": [
-    "                ..,;:cccc:;,..",
-    "          .,:clooooooooooooolc:;..",
-    "       .;loooooooooooooooooooooool;.",
-    "     .:oooooooooooooooooooooooooooooc.",
-    "    ;oooooooooooooooooooooooooooooooo;",
-    "   :oooooooooooooooooooooooooooooooooo:",
-    "  .oooooooooooooooooooooooooooooooooooo.",
-    "  ;oooooooooooooooooooooooooooooooooooo;",
-    "  :oooooooooooooooooooooooooooooooooooo:",
-    "  .oooooooooooooooooooooooooooooooooooo.",
-    "   :oooooooooooooooooooooooooooooooooo:",
-    "    ;oooooooooooooooooooooooooooooooo;",
-    "     .:oooooooooooooooooooooooooooooc.",
-    "       .;loooooooooooooooooooooool;.",
-    "          .,:clooooooooooooolc:;..",
-    "                ..,;:cccc:;.."
-  ],
   "info": [
     ["OS", "macOS 26.5.2 arm64"],
     ["Host", "vibez@biggesthater"],
@@ -28,39 +10,5 @@
     ["CPU", "Apple A18 Pro"],
     ["GPU", "Apple A18 Pro (integrated)"],
     ["Memory", "3.2 GiB / 8.0 GiB"]
-  ],
-  "commands": [
-    {
-      "cmd": "ls -la ~/",
-      "output": [
-        "drwxr-xr-x  42 vibez  staff    1344 Jul 27 04:16 .",
-        "drwxr-xr-x   6 root  wheel     192 Jul 27 04:16 ..",
-        "drwxr-xr-x   8 vibez  staff     256 Jul 27 04:16 projects",
-        "drwxr-xr-x   4 vibez  staff     128 Jul 26 14:00 games",
-        "drwxr-xr-x   6 vibez  staff     192 Jul 27 03:00 dotfiles",
-        "-rw-r--r--   1 neo  staff     420 Jul 27 04:00 neofetch.log"
-      ]
-    },
-    {
-      "cmd": "uname -a",
-      "output": [
-        "Darwin vibez 25.5.0 Darwin Kernel Version 25.5.0: arm64"
-      ]
-    },
-    {
-      "cmd": "df -h /",
-      "output": [
-        "Filesystem     Size   Used  Avail  Use%  Mounted on",
-        "/dev/disk3s1  228Gi   12Gi   96Gi   11%  /"
-      ]
-    },
-    {
-      "cmd": "whoami",
-      "output": ["vibez"]
-    },
-    {
-      "cmd": "uptime",
-      "output": ["04:16  up 6:50, 2 users, load averages: 1.55 2.30 2.81"]
-    }
   ]
 }

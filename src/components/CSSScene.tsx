@@ -48,9 +48,14 @@ export function CSSScene() {
     let running = true;
     const tick = () => {
       if (!running) return;
-      current.current.x += (target.current.x - current.current.x) * 0.06;
-      current.current.y += (target.current.y - current.current.y) * 0.06;
-      setRot({ x: current.current.y, y: current.current.x });
+      const dx = target.current.x - current.current.x;
+      const dy = target.current.y - current.current.y;
+      // Skip the state update once settled, so idle time costs no re-renders.
+      if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
+        current.current.x += dx * 0.06;
+        current.current.y += dy * 0.06;
+        setRot({ x: current.current.y, y: current.current.x });
+      }
       raf.current = requestAnimationFrame(tick);
     };
     tick();

@@ -58,3 +58,15 @@ export async function fetchRecentTracks(limit = 10): Promise<any[]> {
     return [];
   }
 }
+
+// Last.fm serves this fixed image when no art exists; skip it.
+const LASTFM_PLACEHOLDER_HASH = "2a96cbd8b46e442fc41c2b86b821562f";
+
+export function pickImageUrl(imgs: any[]): string {
+  const sizes = ["small", "medium", "large", "extralarge"];
+  for (const sz of sizes) {
+    const url = imgs.find((i: any) => i.size === sz)?.["#text"] || "";
+    if (url && !url.includes(LASTFM_PLACEHOLDER_HASH)) return url;
+  }
+  return "";
+}
