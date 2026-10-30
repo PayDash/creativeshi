@@ -30,7 +30,7 @@ function useTopData(range: Range) {
     const ctrl = new AbortController();
     fetch(`/api/spotify/top?range=${range}`, { signal: ctrl.signal })
       .then(r => r.json())
-      .then(d => setData(d))
+      .then((d: { tracks: TopTrack[]; artists: TopArtist[] }) => setData(d))
       .catch(() => {});
     return () => ctrl.abort();
   }, [range]);
@@ -42,12 +42,12 @@ function useRecentData() {
   useEffect(() => {
     fetch("/api/spotify/recent")
       .then(r => r.json())
-      .then(d => setData(d.recent))
+      .then((d: { recent: RecentTrack[] }) => setData(d.recent))
       .catch(() => {});
     const id = setInterval(() => {
       fetch("/api/spotify/recent")
         .then(r => r.json())
-        .then(d => setData(d.recent))
+        .then((d: { recent: RecentTrack[] }) => setData(d.recent))
         .catch(() => {});
     }, 30000);
     return () => clearInterval(id);
@@ -78,6 +78,7 @@ async function fallbackCover(): Promise<string | null> {
   return _fbUrl ?? null;
 }
 
+// Remounted via key={src} at call sites, so a src change resets all state.
 function AlbumArt({ src, size, radius, accent, nowPlaying }: {
   src: string; size: string; radius: string; accent: string; nowPlaying?: boolean
 }) {
@@ -87,20 +88,14 @@ function AlbumArt({ src, size, radius, accent, nowPlaying }: {
   const fallbackTried = useRef(false);
 
   useEffect(() => {
-    let cancelled = false;
-    fallbackTried.current = false;
-    if (src) {
-      setResolved(src);
-      setErrored(false);
-      setLoaded(false);
-      return;
-    }
+    if (src) return;
     // Empty image: go straight to the local fallback instead of a guaranteed 404.
+    let cancelled = false;
     fallbackCover().then((url) => {
       if (cancelled) return;
+      fallbackTried.current = true;
       setResolved(url || "");
       setErrored(!url);
-      setLoaded(false);
     });
     return () => { cancelled = true; };
   }, [src]);
@@ -140,15 +135,19 @@ function AlbumArt({ src, size, radius, accent, nowPlaying }: {
           color: "rgba(255,255,255,0.12)", fontSize: "1.3em",
         }}>♪</div>
       ) : (
-        <img src={resolved || undefined} alt=""
-          onLoad={() => setLoaded(true)}
-          onError={handleError}
-          loading="lazy"
-          style={{
-            width: "100%", height: "100%", objectFit: "cover",
-            display: "block", opacity: loaded ? 1 : 0,
-            transition: "opacity 0.3s",
-          }} />
+        <>
+          {/* Small remote thumbnails; next/image optimization adds cost for no gain at this size. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={resolved || undefined} alt=""
+            onLoad={() => setLoaded(true)}
+            onError={handleError}
+            loading="lazy"
+            style={{
+              width: "100%", height: "100%", objectFit: "cover",
+              display: "block", opacity: loaded ? 1 : 0,
+              transition: "opacity 0.3s",
+            }} />
+        </>
       )}
     </div>
   );
@@ -173,6 +172,7 @@ export function Music({ expanded }: { expanded?: boolean }) {
             padding: "0 4%",
           }}>
               <AlbumArt
+                key={single.image?.replace("/34s/", "/174s/") || ""}
                 src={single.image?.replace("/34s/", "/174s/") || ""}
                 size="clamp(40px, 7vw, 90px)" radius="8px"
                 accent={t.accent} nowPlaying={!!nowPlaying} />
@@ -257,6 +257,7 @@ export function Music({ expanded }: { expanded?: boolean }) {
                 fontSize: "0.6em", minWidth: 0,
               }}>
                 <AlbumArt
+                  key={track.image}
                   src={track.image}
                   size="2.4em" radius="4px"
                   accent={t.accent} nowPlaying={track.nowPlaying} />
@@ -395,6 +396,7 @@ export function Music({ expanded }: { expanded?: boolean }) {
                         </span>
                         {artist.image && (
                           <AlbumArt
+                            key={artist.image}
                             src={artist.image}
                             size="1.8em" radius="50%"
                             accent={t.accent} />

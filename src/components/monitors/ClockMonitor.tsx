@@ -4,8 +4,20 @@ import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { THEMES } from "@/lib/constants";
 
-export function Clock({ expanded }: { expanded?: boolean }) {
-  const [time, setTime] = useState(new Date());
+// Module-level so the component identity is stable across renders.
+function AnimatedDigit({ d, i }: { d: string; i: number }) {
+  return (
+    <motion.span
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 + Math.abs(i - 2.5) * 0.035, duration: 0.5, ease: "easeOut" }}
+    >
+      {d}
+    </motion.span>
+  );
+}
+
+export function Clock({ expanded }: { expanded?: boolean }) {  const [time, setTime] = useState(new Date());
   const t = THEMES.clock;
 
   useEffect(() => {
@@ -23,18 +35,6 @@ export function Clock({ expanded }: { expanded?: boolean }) {
   const ds = time.getSeconds();
 
   const digits = [hh[0], hh[1], mm[0], mm[1], ss[0], ss[1]];
-
-  function AnimatedDigit({ d, i }: { d: string; i: number }) {
-    return (
-      <motion.span
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 + Math.abs(i - 2.5) * 0.035, duration: 0.5, ease: "easeOut" }}
-      >
-        {d}
-      </motion.span>
-    );
-  }
 
   return (
     <div style={{

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { THEMES } from "@/lib/constants";
+import type { WakatimeItem } from "@/lib/wakatime";
 import { useWakatime } from "./useWakatime";
 
 const LANG_COLORS: Record<string, string> = {
@@ -26,7 +26,7 @@ const EDITOR_COLORS: Record<string, string> = {
   default: "#8b5cf6",
 };
 
-function StatCard({ label, value, accent, index }: { label: string; value: string; accent: string; index?: number }) {
+function StatCard({ label, value, index }: { label: string; value: string; index?: number }) {
   return (
     <div style={{
       background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)",
@@ -40,12 +40,12 @@ function StatCard({ label, value, accent, index }: { label: string; value: strin
   );
 }
 
-function BarList({ items, maxKey = "percent" }: { items: any[]; maxKey?: string }) {
-  const max = items.length > 0 ? Math.max(...items.map((i: any) => i[maxKey] || 0)) : 1;
+function BarList({ items }: { items: WakatimeItem[] }) {
+  const max = items.length > 0 ? Math.max(...items.map((i) => i.percent || 0)) : 1;
   if (items.length === 0) return null;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.3em" }}>
-      {items.slice(0, 7).map((item: any) => {
+      {items.slice(0, 7).map((item) => {
         const val = item.percent || 0;
         const bar = max > 0 ? (val / max) * 100 : 0;
         const ckey = item.name.toLowerCase();
@@ -70,18 +70,22 @@ function BarList({ items, maxKey = "percent" }: { items: any[]; maxKey?: string 
   );
 }
 
-function DonutChart({ items, size = 140 }: { items: any[]; size?: number }) {
+function DonutChart({ items, size = 140 }: { items: WakatimeItem[]; size?: number }) {
   if (items.length === 0) return null;
   const r = 36, sw = 16, circ = 2 * Math.PI * r;
   const cx = 50, cy = 50;
-  let cum = 0;
+  // Precompute arc offsets so nothing mutates while JSX renders.
+  const arcs: { item: WakatimeItem; len: number; offset: number }[] = [];
+  let acc = 0;
+  for (const item of items.slice(0, 6)) {
+    const len = (item.percent || 0) / 100 * circ;
+    arcs.push({ item, len, offset: -acc });
+    acc += len;
+  }
   return (
     <svg width={size} height={size} viewBox="0 0 100 100">
       <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={sw} />
-      {items.slice(0, 6).map((item: any) => {
-        const len = (item.percent / 100) * circ;
-        const offset = -cum;
-        cum += len;
+      {arcs.map(({ item, len, offset }) => {
         const color = LANG_COLORS[item.name.toLowerCase()] || EDITOR_COLORS[item.name.toLowerCase()] || LANG_COLORS.default;
         return (
           <circle key={item.name} cx={cx} cy={cy} r={r} fill="none" stroke={color} strokeWidth={sw}
@@ -118,16 +122,15 @@ export function Activity({ expanded }: { expanded?: boolean }) {
         </div>
         <div style={{ borderBottom: `1px solid ${t.accent}22`, marginBottom: "0.4em" }} />
         <div style={{ display: "flex", gap: "0.5em", flexWrap: "wrap", marginBottom: "0.3em" }}>
-          <StatCard index={0} label="CODED" value={data.human_readable_total || "—"} accent={t.accent} />
-          <StatCard index={1} label="DAILY" value={data.human_readable_daily_average || "—"} accent={t.accent} />
+          <StatCard index={0} label="CODED" value={data.human_readable_total || "—"} />
+          <StatCard index={1} label="DAILY" value={data.human_readable_daily_average || "—"} />
         </div>
         <div style={{ display: "flex", gap: "1em", flex: 1, minHeight: 0 }}>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "0.2em" }}>
             {data.editors && data.editors.length > 0 && (
               <>
                 <span style={{ color: "#6b7a90", fontSize: "0.5em", letterSpacing: "0.5px" }}>EDITORS</span>
-                {data.editors.slice(0, 4).map((e: any) => {
-                  const color = EDITOR_COLORS[e.name.toLowerCase()] || t.accent;
+                {data.editors.slice(0, 4).map((e) => {
                   return (
                     <div key={e.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.6em" }}>
                       <span style={{ color: "#d4dce8" }}>{e.name}</span>
@@ -142,8 +145,7 @@ export function Activity({ expanded }: { expanded?: boolean }) {
             {data.languages && data.languages.length > 0 && (
               <>
                 <span style={{ color: "#6b7a90", fontSize: "0.5em", letterSpacing: "0.5px" }}>LANGUAGES</span>
-                {data.languages.slice(0, 6).map((l: any) => {
-                  const color = LANG_COLORS[l.name.toLowerCase()] || LANG_COLORS.default;
+                {data.languages.slice(0, 6).map((l) => {
                   return (
                     <div key={l.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.6em" }}>
                       <span style={{ color: "#d4dce8" }}>{l.name}</span>
@@ -159,10 +161,10 @@ export function Activity({ expanded }: { expanded?: boolean }) {
     );
   }
 
-  const langs = data.languages?.filter((l: any) => l.percent > 0.5) || [];
-  const editors = data.editors?.filter((e: any) => e.percent > 0.5) || [];
-  const osList = data.operating_systems?.filter((o: any) => o.percent > 0.5) || [];
-  const projects = data.projects?.filter((p: any) => p.percent > 0.5) || [];
+  const langs = data.languages?.filter((l) => l.percent !== undefined && l.percent > 0.5) || [];
+  const editors = data.editors?.filter((e) => e.percent !== undefined && e.percent > 0.5) || [];
+  const osList = data.operating_systems?.filter((o) => o.percent !== undefined && o.percent > 0.5) || [];
+  const projects = data.projects?.filter((p) => p.percent !== undefined && p.percent > 0.5) || [];
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "auto" }}>
@@ -183,9 +185,9 @@ export function Activity({ expanded }: { expanded?: boolean }) {
       <div style={{ borderBottom: `1px solid ${t.accent}22`, marginBottom: "0.5em", flexShrink: 0 }} />
 
       <div style={{ display: "flex", gap: "0.5em", flexWrap: "wrap", marginBottom: "0.5em", flexShrink: 0 }}>
-        <StatCard label="CODED THIS WEEK" value={data.human_readable_total || "—"} accent={t.accent} />
-        <StatCard label="DAILY AVG" value={data.human_readable_daily_average || "—"} accent={t.accent} />
-        <StatCard label="RANGE" value={data.range || "—"} accent={t.accent} />
+        <StatCard label="CODED THIS WEEK" value={data.human_readable_total || "—"} />
+        <StatCard label="DAILY AVG" value={data.human_readable_daily_average || "—"} />
+        <StatCard label="RANGE" value={data.range || "—"} />
       </div>
 
       <div style={{ display: "flex", gap: "1em", flex: 1, minHeight: 0 }}>
@@ -224,7 +226,7 @@ export function Activity({ expanded }: { expanded?: boolean }) {
             }}>
               <span style={{ color: "#6b7a90", fontSize: "0.6em", letterSpacing: "0.5px", marginBottom: "0.3em", display: "block" }}>OPERATING SYSTEMS</span>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.3em" }}>
-                {osList.map((o: any) => {
+                {osList.map((o) => {
                   const color = LANG_COLORS[o.name.toLowerCase()] || LANG_COLORS.default;
                   return (
                     <div key={o.name} style={{
@@ -248,8 +250,8 @@ export function Activity({ expanded }: { expanded?: boolean }) {
             }}>
               <span style={{ color: "#6b7a90", fontSize: "0.6em", letterSpacing: "0.5px", marginBottom: "0.3em", display: "block" }}>PROJECTS</span>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.3em" }}>
-                {projects.slice(0, 7).map((p: any) => {
-                  const maxSec = Math.max(...projects.map((x: any) => x.total_seconds || 0));
+                {projects.slice(0, 7).map((p) => {
+                  const maxSec = Math.max(...projects.map((x) => x.total_seconds || 0));
                   const bar = maxSec > 0 ? ((p.total_seconds || 0) / maxSec) * 100 : 0;
                   const color = LANG_COLORS[p.name.toLowerCase()] || EDITOR_COLORS[p.name.toLowerCase()] || t.accent;
                   return (

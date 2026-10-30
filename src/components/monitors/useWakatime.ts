@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { WakatimeStats } from "@/lib/wakatime";
 
-export function useWakatime() {
-  const [data, setData] = useState<any>(null);
+export function useWakatime(): WakatimeStats | null {
+  const [data, setData] = useState<WakatimeStats | null>(null);
   useEffect(() => {
     fetch("/api/wakatime")
       .then(r => r.json())
-      .then(d => setData(d))
+      .then((d: WakatimeStats | null) => setData(d))
       .catch(() => {});
   }, []);
   return data;

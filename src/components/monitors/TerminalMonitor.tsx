@@ -74,12 +74,14 @@ function Donut({ small }: { small?: boolean }) {
 }
 
 function Terminal({ expanded }: { expanded?: boolean }) {
-  const [vis, setVis] = useState(0);
+  const [typedVis, setTypedVis] = useState(0);
+  // While expanded, the full info is shown immediately (no typing animation).
+  const vis = expanded ? INFO.length : typedVis;
 
   useEffect(() => {
-    if (expanded) { setVis(INFO.length); return; }
+    if (expanded) return;
     const iv = setInterval(() => {
-      setVis((v) => {
+      setTypedVis((v) => {
         if (v >= INFO.length) { clearInterval(iv); return v; }
         return v + 1;
       });

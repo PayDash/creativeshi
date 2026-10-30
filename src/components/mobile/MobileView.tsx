@@ -27,7 +27,7 @@ export function MobileView() {
           ByeVibez<span style={{ color: "#7c3aed" }}>.</span>
         </div>
         <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>
-          ~/portfolio — tap a monitor
+          ~/portfolio
         </div>
       </div>
 
