@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { loadBlocklist, shouldBlock } from "@/lib/blocklist";
+import type { WakatimeStats, WakatimeStatsResponse } from "@/lib/wakatime";
+
+const STATS_KEYS = ["projects", "languages", "editors", "operating_systems"] as const;
 
 export async function GET() {
   const key = process.env.WAKATIME_API_KEY;
@@ -16,16 +19,17 @@ export async function GET() {
       fetch("https://wakatime.com/api/v1/users/current/stats/all_time", { headers, next: { revalidate: 300 } }),
     ]);
 
-    const stats = await statsRes.json();
-    const allTime = await allTimeRes.json();
+    const stats: WakatimeStatsResponse = await statsRes.json();
+    const allTime: WakatimeStatsResponse = await allTimeRes.json();
 
-    const data = stats.data ?? null;
+    const data: WakatimeStats | null = stats.data ?? null;
     const blocklist = loadBlocklist();
 
     if (data) {
-      for (const k of ["projects", "languages", "editors", "operating_systems"]) {
-        if (Array.isArray(data[k])) {
-          data[k] = data[k].filter((item: any) => !shouldBlock(item.name, blocklist));
+      for (const k of STATS_KEYS) {
+        const list = data[k];
+        if (list) {
+          data[k] = list.filter((item) => !shouldBlock(item.name, blocklist));
         }
       }
       data.grand_total = allTime.data?.human_readable_total ?? null;

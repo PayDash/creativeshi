@@ -16,7 +16,7 @@ export async function GET() {
   try {
     const raw = await fetchRecentTracks(10);
 
-    const recent = raw.map((t: any) => ({
+    const recent = raw.map((t) => ({
       title: t.name || "Unknown",
       artist: t.artist?.["#text"] || "Unknown",
       album: t.album?.["#text"] || "",

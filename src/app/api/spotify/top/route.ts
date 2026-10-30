@@ -1,22 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchTopTracks, fetchTopArtists, pickImageUrl } from "@/lib/spotify";
+import type { LastfmArtist, LastfmTrack } from "@/lib/spotify";
 
 const RANGES = ["week", "month", "year", "all"];
 
-function mapTrack(t: any): { title: string; artist: string; plays: number; album: string } {
+function mapTrack(t: LastfmTrack): { title: string; artist: string; plays: number; album: string } {
   return {
     title: t.name || "Unknown",
     artist: t.artist?.name || t.artist?.["#text"] || "Unknown",
-    plays: parseInt(t.playcount) || 0,
+    plays: parseInt(t.playcount ?? "") || 0,
     album: t.album?.["#text"] || "",
   };
 }
 
-function mapArtist(a: any): { name: string; genres: string[]; plays: number; image: string } {
+function mapArtist(a: LastfmArtist): { name: string; genres: string[]; plays: number; image: string } {
   return {
     name: a.name || "Unknown",
-    genres: (a.tags?.tag || []).map((t: any) => typeof t === "string" ? t : t.name || "").filter(Boolean),
-    plays: parseInt(a.playcount) || 0,
+    genres: (a.tags?.tag || []).map((t) => typeof t === "string" ? t : t.name || "").filter(Boolean),
+    plays: parseInt(a.playcount ?? "") || 0,
     image: pickImageUrl(a.image || []),
   };
 }
