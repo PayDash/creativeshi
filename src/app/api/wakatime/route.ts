@@ -5,7 +5,9 @@ import type { WakatimeStats, WakatimeStatsResponse } from "@/lib/wakatime";
 const STATS_KEYS = ["projects", "languages", "editors", "operating_systems"] as const;
 
 export async function GET() {
-  const key = process.env.WAKATIME_API_KEY;
+  // WakaTime API keys are write-only (plugins); reading stats needs a
+  // personal OAuth token from https://wakatime.com/oauth.
+  const key = process.env.WAKATIME_TOKEN;
   if (!key) {
     return NextResponse.json(null);
   }
